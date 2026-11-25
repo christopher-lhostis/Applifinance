@@ -46,7 +46,7 @@ pub fn main_menu(store: &mut Store) -> Result<()> {
                 if other.is_empty() {
                     return Ok(());
                 }
-                println !("  {}", ui::warning(&format!("Choix inconnu : {other}")));
+                println!("  {}", ui::warning(&format!("Choix inconnu : {other}")));
             }
         }
     }

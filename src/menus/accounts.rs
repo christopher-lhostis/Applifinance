@@ -24,7 +24,7 @@ pub fn menu(store: &mut Store) -> Result<()> {
             "1" => add(store)?,
             "2" => remove(store)?,
             "0" | "" => return Ok(()),
-            other => println!("  ⚠ Choix inconnu : {other}"),
+            other => println!("  {}", ui::warning(&format!("Choix inconnu : {other}"))),
         }
     }
 }

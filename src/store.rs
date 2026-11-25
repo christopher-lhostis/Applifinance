@@ -287,7 +287,7 @@ impl Store {
         Ok(count)
     }
 
-        pub fn set_budget(&self, category_id: i64, month: &str, limit_cents: i64) -> Result<()> {
+    pub fn set_budget(&self, category_id: i64, month: &str, limit_cents: i64) -> Result<()> {
         self.conn.execute(
             "
             INSERT INTO budgets (category_id, month, limit_cents)
@@ -382,5 +382,4 @@ impl Store {
             .collect::<Result<Vec<_>, _>>()?;
         Ok(totals)
     }
-
-        }
+}
