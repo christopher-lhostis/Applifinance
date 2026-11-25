@@ -1,23 +1,22 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+//! Programme principal : interface web locale dans le navigateur.
 
-fn main() -> eframe::Result<()> {
-    let app = mon_budget::gui::FinanceApp::new();
-    eframe::run_native(
-        "Mon Budget",
-        eframe::NativeOptions {
-            viewport: egui_viewport(),
-            ..Default::default()
-        },
-        Box::new(|_creation_context| match app {
-            Ok(app) => Ok(Box::new(app)),
-            Err(error) => Err(Box::<dyn std::error::Error + Send + Sync>::from(error)),
-        }),
-    )
-}
+use anyhow::{bail, Result};
 
-fn egui_viewport() -> eframe::egui::ViewportBuilder {
-    eframe::egui::ViewportBuilder::default()
-        .with_inner_size([1150.0, 760.0])
-        .with_min_inner_size([880.0, 600.0])
-        .with_title("Mon Budget")
+use mon_budget::store::Store;
+use mon_budget::web;
+
+const FIRST_PORT: u16 = 8630;
+const PORTS_TO_TRY: u16 = 10;
+
+fn main() -> Result<()> {
+    let db_path = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| "mon-budget.db".to_string());
+    let store = Store::open(&db_path)?;
+    for port in FIRST_PORT..FIRST_PORT + PORTS_TO_TRY {
+        if std::net::TcpListener::bind(("127.0.0.1", port)).is_ok() {
+            return web::serve(store, port);
+        }
+    }
+    bail!("Impossible de trouver un port libre (essayé {FIRST_PORT} à {}).", FIRST_PORT + PORTS_TO_TRY - 1)
 }

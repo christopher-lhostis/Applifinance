@@ -1,4 +1,4 @@
-//! Export CSV partagé entre l'interface console et l'interface graphique.
+//! Export CSV partagé entre l'interface console et l'interface web.
 
 use std::fs::write;
 
@@ -7,17 +7,10 @@ use chrono::Local;
 
 use crate::store::Store;
 
-/// Exporte toutes les transactions vers un fichier CSV.
-/// Renvoie `None` s'il n'y a rien à exporter, sinon le chemin créé.
-pub fn export_file(store: &Store) -> Result<Option<String>> {
-    if store.count_transactions()? == 0 {
-        return Ok(None);
-    }
-    let rows = store.all_transactions()?;
-    let date = Local::now().naive_local().format("%Y%m%d-%H%M%S");
-    let path = format!("export-mon-budget-{date}.csv");
+/// Construit le contenu CSV de toutes les transactions.
+pub fn export_csv_string(store: &Store) -> Result<String> {
     let mut csv = String::from("\u{FEFF}date;compte;categorie;type;montant_euros;note\n");
-    for row in rows {
+    for row in store.all_transactions()? {
         let sign = if row.kind == "depense" { "-" } else { "" };
         csv.push_str(&format!(
             "{};{};{};{};{}{};{}\n",
@@ -30,7 +23,18 @@ pub fn export_file(store: &Store) -> Result<Option<String>> {
             csv_field(&row.note)
         ));
     }
-    write(&path, csv)?;
+    Ok(csv)
+}
+
+/// Exporte toutes les transactions vers un fichier CSV.
+/// Renvoie `None` s'il n'y a rien à exporter, sinon le chemin créé.
+pub fn export_file(store: &Store) -> Result<Option<String>> {
+    if store.count_transactions()? == 0 {
+        return Ok(None);
+    }
+    let date = Local::now().naive_local().format("%Y%m%d-%H%M%S");
+    let path = format!("export-mon-budget-{date}.csv");
+    write(&path, export_csv_string(store)?)?;
     Ok(Some(path))
 }
 
