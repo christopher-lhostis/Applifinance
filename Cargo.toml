@@ -1,12 +1,21 @@
 [package]
 name = "mon-budget"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-description = "Application de gestion de finances personnelles, simple et locale"
+description = "Application de gestion de finances personnelles, simple et locale (console et interface graphique)"
+
+[lib]
+name = "mon_budget"
+path = "src/lib.rs"
+
+[[bin]]
+name = "mon-budget-cli"
+path = "src/bin/cli.rs"
 
 [dependencies]
 anyhow = "1"
 chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+eframe = { version = "=0.31.1", default-features = false, features = ["glow", "default_fonts", "x11"] }
 rusqlite = { version = "0.32", features = ["bundled"] }
 
 [profile.release]
